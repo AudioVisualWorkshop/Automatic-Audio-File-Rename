@@ -53,47 +53,6 @@ def update_audio_file_list(*args):
         audio_file_list.insert(tk.END, final_name + file_ext + "\n\n")
 
 
-
-
-
-
-
-
-# def update_audio_file_list(*args):
-#     audio_file_list.delete("1.0", tk.END)
-
-#     prefix_text = prefix_entry.get().strip() or ""
-#     filename_text = filename.get().strip() or ""
-#     suffix_text = suffix_entry.get().strip() or ""
-#     find_text = find_entry.get().strip()
-#     replace_text = replace_entry.get().strip()
-
-#     # Any defining file renaming that includes filename_text
-#     if prefix_text and filename_text and suffix_text:
-#         new_filename = f"{prefix_text}{filename_text}{suffix_text}"
-#     elif prefix_text and filename_text:
-#         new_filename = f"{prefix_text}{filename_text}"
-#     elif filename_text and suffix_text:
-#         new_filename = f"{filename_text}{suffix_text}"
-#     else:
-#         new_filename = f"{filename_text}"
-
-#     # Writes to audio_file_list Textbox
-#     for file in selected_files:
-#         file_name = os.path.basename(file)
-#         file_name_without_ext, file_name_extension = os.path.splitext(file_name) # Splits file name extension
-#         audio_file_list.insert(tk.END, file_name + "\n")
-
-#         # For renaming files without filename_text
-#         if prefix_text and suffix_text and not filename_text:
-#             audio_file_list.insert(tk.END, prefix_text + file_name_without_ext + suffix_text + "\n\n")
-#         elif prefix_text and not filename_text:
-#             audio_file_list.insert(tk.END, prefix_text + file_name_without_ext + "\n\n")
-#         elif suffix_text and not filename_text:
-#             audio_file_list.insert(tk.END, file_name_without_ext + suffix_text + "\n\n")
-#         else:
-#             audio_file_list.insert(tk.END, new_filename + "\n\n")
-
 # Store selected wildcards in order
 selected_wildcards_order = []
 
@@ -130,6 +89,10 @@ def toggle_wildcards_list():
         wildcards_list.grid_remove() #Hides List
     else:
         wildcards_list.grid(row=3, column=3, columnspan=2)
+
+
+
+
 
 #Initialize TKinter
 root = tk.Tk()
