@@ -3,7 +3,8 @@
 import os
 
 def rename_files(file_name, prefix, suffix, find_text, replace_text, wildcards):
-    file_name_without_ext, file_ext = os.path.splitext(file_name)
+    file = os.path.basename(file_name)
+    file_name_without_ext, file_ext = os.path.splitext(file)
 
     # Apply find & replace if needed
     if find_text and find_text in file_name_without_ext:

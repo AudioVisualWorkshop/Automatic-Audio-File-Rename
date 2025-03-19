@@ -1,13 +1,13 @@
 # Main Tkinter GUI application
 
 import tkinter as tk
-from gui import AudioFileRenamerApp
+from gui import MainWindow
 
 
 #Initialize TKinter
 def main():
     root = tk.Tk() #gui.py uses this as a parameter
-    app = AudioFileRenamerApp(root)
+    app = MainWindow(root)
     root.mainloop()
 
 if __name__ == "__main__":

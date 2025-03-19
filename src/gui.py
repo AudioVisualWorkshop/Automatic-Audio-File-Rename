@@ -4,55 +4,19 @@ import os
 from renamer import rename_files
 from wildcards import get_selected_wildcards
 
-class AudioFileRenamerApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Audio File Renamer")
-        self.selected_files = [] #instead of using a global variable
-        self.selected_wildcards_order = []
-
-        self.create_widgets()
-
-    def create_widgets(self):
-        frame = ttk.Frame(self.root, padding=10)
-        frame.grid(row=0, column=0, sticky="nsew")
-
-        #Prefix Entry
-        ttk.Label(frame, text="Prefix:").grid(row=0, column=0, sticky="w")
-        self.prefix_entry = ttk.Entry(frame)
-        self.prefix_entry.grid(row=0, column=1, sticky="ew")
-        self.prefix_entry.bind("<KeyRelease>", self.update_audio_file_list)
-
-        # Suffix Entry
-        ttk.Label(frame, text="Suffix:").grid(row=1, column=0, sticky="w")
-        self.suffix_entry = ttk.Entry(frame)
-        self.suffix_entry.grid(row=1, column=1, sticky="ew")
-        self.suffix_entry.bind("<KeyRelease>", self.update_audio_file_list)
-
-        # Find & Replace
-        ttk.Label(frame, text="Find:").grid(row=2, column=0, sticky="w")
-        self.find_entry = ttk.Entry(frame)
-        self.find_entry.grid(row=2, column=1, sticky="ew")
-        self.find_entry.bind("<KeyRelease>", self.update_audio_file_list)
-
-        ttk.Label(frame, text="Replace:").grid(row=3, column=0, sticky="w")
-        self.replace_entry = ttk.Entry(frame)
-        self.replace_entry.grid(row=3, column=1, sticky="ew")
-        self.replace_entry.bind("<KeyRelease>", self.update_audio_file_list)
+class FileSelectionUI:
+    def __init__(self, parent): #parent is the parent frame
+        self.parent = parent
+        self.selected_files = []
 
         # Browse Button
-        browse_button = tk.Button(frame, text="Browse", command=self.select_files)
+        browse_button = tk.Button(parent, text="Browse", command=self.select_files)
         browse_button.grid(row=4, column=0, columnspan=2)
 
-        #Wildcards List
-        self.wildcards_list = tk.Listbox(frame, selectmode=tk.MULTIPLE, height=5)
-        self.wildcards_list.grid(row=5, column=0, columnspan=2)
-        self.wildcards_list.bind("<<ListboxSelect>>", self.update_wildcards)
-
         # Audio File List Display
-        self.audio_file_list = tk.Text(frame, wrap="none", height=10)
+        self.audio_file_list = tk.Text(parent, wrap="none", height=10)
         self.audio_file_list.grid(row=6, column=0, columnspan=2, sticky="nsew")
-
+    
     def select_files(self):
         self.selected_files = filedialog.askopenfilenames(filetypes=[ ("Audio Files", "*.mp3"),
                                                         ("Audio Files", "*.wav"),
@@ -60,22 +24,95 @@ class AudioFileRenamerApp:
                                                         ("Audio Files", "*.aiff")])
         self.update_audio_file_list()
 
-    def update_wildcards(self, event=None):
-        self.selected_wildcards_order = get_selected_wildcards(self.wildcards_list)
-        self.update_audio_file_list()
-
     def update_audio_file_list(self, event=None):
         self.audio_file_list.delete("1.0", tk.END)
-        prefix = self.prefix_entry.get().strip()
-        suffix = self.suffix_entry.get().strip()
-        find_text = self.find_entry.get().strip()
-        replace_text = self.replace_entry.get().strip()
-
         for file in self.selected_files:
             file_name = os.path.basename(file)
-            new_name = rename_files(file_name, prefix, suffix, find_text, replace_text, self.selected_wildcards_order)
-            self.audio_file_list.insert(tk.END, file_name + "\n")
-            self.audio_file_list.insert(tk.END, new_name + "\n\n")
+            # new_name = rename_files(file_name, prefix, suffix, find_text, replace_text, self.selected_wildcards_order)
+            self.audio_file_list.insert(tk.END, file_name + "\n\n")
+            # self.audio_file_list.insert(tk.END, new_name + "\n\n")
+
+class PrefixSuffixUI:
+    def __init__(self, parent, update_callback):
+        self.parent = parent
+        self.update_callback = update_callback
+
+        #Prefix Entry
+        ttk.Label(parent, text="Prefix:").grid(row=0, column=0, sticky="w")
+        self.prefix_entry = ttk.Entry(parent)
+        self.prefix_entry.grid(row=0, column=1, sticky="ew")
+        self.prefix_entry.bind("<KeyRelease>", self.update_callback)
+
+        # Suffix Entry
+        ttk.Label(parent, text="Suffix:").grid(row=1, column=0, sticky="w")
+        self.suffix_entry = ttk.Entry(parent)
+        self.suffix_entry.grid(row=1, column=1, sticky="ew")
+        self.suffix_entry.bind("<KeyRelease>", self.update_callback)
+    
+    def get_prefix_suffix(self):
+        return self.prefix_entry.get().strip(), self.suffix_entry.get().strip()
+
+class FindReplaceUI:
+    def __init__(self, parent, update_callback):
+        self.parent = parent
+        self.update_callback = update_callback #Reference to update function
+
+        # Find & Replace
+        ttk.Label(parent, text="Find:").grid(row=2, column=0, sticky="w")
+        self.find_entry = ttk.Entry(parent)
+        self.find_entry.grid(row=2, column=1, sticky="ew")
+        self.find_entry.bind("<KeyRelease>", self.update_callback)
+
+        ttk.Label(parent, text="Replace:").grid(row=3, column=0, sticky="w")
+        self.replace_entry = ttk.Entry(parent)
+        self.replace_entry.grid(row=3, column=1, sticky="ew")
+        self.replace_entry.bind("<KeyRelease>", self.update_callback)
+    
+    def get_find_replace(self):
+        return self.find_entry.get().strip(), self.replace_entry.get().strip()
+    
+class WildcardSelectionUI:
+    def __init__(self, parent, update_callback):
+        self.parent = parent
+        self.update_callback = update_callback
+
+        #Wildcards List
+        self.wildcards_list = tk.Listbox(parent, selectmode=tk.MULTIPLE, height=5)
+        self.wildcards_list.grid(row=5, column=0, columnspan=2)
+        self.wildcards_list.bind("<<ListboxSelect>>", self.update_callback)
+
+    def get_selected_wildcards(self):
+        return get_selected_wildcards(self.wildcards_list)
+
+class MainWindow:
+    # compiles all UI components
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Audio File Renamer")
+        frame = ttk.Frame(self.root, padding=10)
+        frame.grid(row=0, column=0, sticky="nsew")
+
+        #Create the UI sections
+        self.file_ui = FileSelectionUI(frame)
+        self.prefixsuffix_ui = PrefixSuffixUI(frame, self.update_audio_file_list)
+        self.find_replace_ui = FindReplaceUI(frame, self.update_audio_file_list)
+        self.wildcard_ui = WildcardSelectionUI(frame, self.update_audio_file_list)
+
+    def update_audio_file_list(self, event=None):
+        prefix_text, suffix_text = self.prefixsuffix_ui.get_prefix_suffix()
+        find_text, replace_text = self.find_replace_ui.get_find_replace()
+        selected_wildcards = self.wildcard_ui.get_selected_wildcards()
+
+        self.file_ui.audio_file_list.delete("1.0", tk.END)
+        for file in self.file_ui.selected_files:
+            file_name = os.path.basename(file)
+            new_name = rename_files(file, prefix_text, suffix_text, find_text, replace_text, selected_wildcards)
+            self.file_ui.audio_file_list.insert(tk.END, file_name + "\n")
+            self.file_ui.audio_file_list.insert(tk.END, new_name + "\n\n")
+
+    
+
+    
 
 
 
